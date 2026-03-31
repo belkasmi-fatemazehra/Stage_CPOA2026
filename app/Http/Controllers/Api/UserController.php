@@ -3,23 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UserUpdatedMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
     public function index()
     {
-        // 🔥 PROTECTION
-        // if (! \Illuminate\Support\Facades\Auth::check()) {
-        //     return response()->json(['message' => 'Non authentifié'], 401);
-        // }
-
-        // if (\Illuminate\Support\Facades\Auth::user()->role != 'admin' && \Illuminate\Support\Facades\Auth::user()->role != 'manager') {
-        //     return response()->json(['message' => 'Accès refusé'], 403);
-        // }
-
         $users = User::with('nature')->orderBy('id', 'desc')->get();
 
         return response()->json($users);
@@ -27,11 +20,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // 🔥 PROTECTION (admin only)
-        // if (! \Illuminate\Support\Facades\Auth::check() || \Illuminate\Support\Facades\Auth::user()->role !== 'admin') {
-        //     return response()->json(['message' => 'Accès refusé'], 403);
-        // }
-
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
@@ -60,11 +48,6 @@ class UserController extends Controller
 
     public function show($id)
     {
-        // 🔥 PROTECTION
-        // if (! \Illuminate\Support\Facades\Auth::check() || (\Illuminate\Support\Facades\Auth::user()->role !== 'admin' && \Illuminate\Support\Facades\Auth::user()->role !== 'manager')) {
-        //     return response()->json(['message' => 'Accès refusé'], 403);
-        // }
-
         $user = User::with('nature')->findOrFail($id);
 
         return response()->json($user);
@@ -72,11 +55,6 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        // 🔥 PROTECTION
-        // if (! \Illuminate\Support\Facades\Auth::check() || (\Illuminate\Support\Facades\Auth::user()->role !== 'admin' && \Illuminate\Support\Facades\Auth::user()->role !== 'manager')) {
-        //     return response()->json(['message' => 'Accès refusé'], 403);
-        // }
-
         $user = User::findOrFail($id);
 
         $request->validate([
@@ -88,6 +66,14 @@ class UserController extends Controller
             'is_active' => 'required',
             'password' => 'nullable|min:6',
         ]);
+
+        // Stocker les anciennes valeurs
+        $oldData = [
+            'role' => $user->role,
+            'service' => $user->service,
+            'is_active' => $user->is_active,
+            'nature_id' => $user->nature_id,
+        ];
 
         $data = [
             'name' => $request->name,
@@ -104,6 +90,23 @@ class UserController extends Controller
 
         $user->update($data);
 
+        // Envoyer un email à l'utilisateur modifié
+        try {
+            $newData = [
+                'role' => $request->role,
+                'service' => $request->service,
+                'is_active' => $request->is_active,
+                'nature_id' => $request->nature_id,
+            ];
+
+            $updatedBy = request()->user() ? request()->user()->name : 'Administrateur';
+
+            Mail::to($user->email)->send(new UserUpdatedMail($user, $oldData, $newData, $updatedBy));
+        } catch (\Exception $e) {
+            // Ne pas bloquer la réponse si l'email échoue
+            \Illuminate\Support\Facades\Log::error('Erreur envoi email: '.$e->getMessage());
+        }
+
         return response()->json([
             'message' => 'Utilisateur modifié avec succès',
         ]);
@@ -111,11 +114,6 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        // 🔥 PROTECTION (admin only)
-        // if (! \Illuminate\Support\Facades\Auth::check() || \Illuminate\Support\Facades\Auth::user()->role !== 'admin') {
-        //     return response()->json(['message' => 'Accès refusé'], 403);
-        // }
-
         $user = User::findOrFail($id);
 
         $user->delete();

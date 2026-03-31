@@ -1,5 +1,5 @@
 <?php
-use App\Http\Controllers\Api\AffectationController;
+
 use App\Http\Controllers\Api\CourrierController;
 use App\Http\Controllers\Api\CourrierDepartController;
 use App\Http\Controllers\Api\NatureController;
@@ -50,6 +50,7 @@ Route::get('/courrier-departs/download/{id}', [CourrierDepartController::class, 
 Route::get('/courrier-departs/generer-pdf/{annee}', [CourrierDepartController::class, 'genererPdf']);
 Route::get('/courrier-departs/export-excel', [CourrierDepartController::class, 'exportExcel']);
 Route::post('/courrier-departs/import-excel', [CourrierDepartController::class, 'importExcel']);
+
 // modifier
 Route::get('/courriers/{id}', [CourrierController::class, 'show']);
 
@@ -60,32 +61,31 @@ Route::get('/courriers/generer-pdf/{annee}', [CourrierController::class, 'genere
 
 // telecharger pdf
 Route::get('/courriers/download/{id}', [CourrierController::class, 'downloadPdf']);
-// user
-Route::get('/users', [UserController::class, 'index']);
-// Route::post('/users',[UserController::class,'store']);
-// Route::get('/users/{id}',[UserController::class,'show']);
+
+// user API
+Route::get('/users-api', [UserController::class, 'index']);
 Route::put('/users/{id}', [UserController::class, 'update']);
-// Route::delete('/users/{id}',[UserController::class,'destroy']);
-// ///////////////////////////////////////////
-// // Route::get('/users', function () {
-// //     return \App\Models\User::all();
-// // });
-// //////////////////////////////////////////
-// Route::post('/users/update', function (\Illuminate\Http\Request $request) {
 
-//     $user = \App\Models\User::findOrFail($request->id);
+// affectations
+Route::middleware('auth')->group(function () {
+    Route::get('/affectations/list', [\App\Http\Controllers\AffectationController::class, 'index']);
+    Route::post('/affectations', [\App\Http\Controllers\AffectationController::class, 'store']);
+    Route::post('/affectations/{id}/respond', [\App\Http\Controllers\AffectationController::class, 'respond']);
+    Route::get('/reponses/list', [\App\Http\Controllers\AffectationController::class, 'responses']);
+});
 
-//     $user->role = $request->role;
-//     $user->is_active = $request->is_active;
-//     $user->nature_id = $request->nature_id;
-//     $user->service = $request->service;
+// current user info
+Route::get('/me', function () {
+    $user = request()->user();
+    if (! $user) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
 
-//     $user->save();
-
-//     return response()->json(['success'=>true]);
-// });
-//affectation
-Route::get('/affectations',[AffectationController::class,'index']);
-Route::post('/affectations',[AffectationController::class,'store']);
-Route::get('/affectations/{id}',[AffectationController::class,'show']);
-Route::delete('/affectations/{id}',[AffectationController::class,'destroy']);
+    return response()->json([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role,
+        'service_id' => $user->service_id,
+    ]);
+});

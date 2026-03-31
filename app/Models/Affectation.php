@@ -22,4 +22,8 @@ class Affectation extends Model
     {
         return $this->belongsTo(Service::class);
     }
+    public function reponses()
+   {
+    return $this->hasMany(Reponse::class);
+    }
 }

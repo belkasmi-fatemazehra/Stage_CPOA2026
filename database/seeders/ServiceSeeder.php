@@ -11,21 +11,26 @@ class ServiceSeeder extends Seeder
     {
         DB::table('services')->insert([
             [
-                'nom_service' => 'services de développement social, coopération, mutuelle et partenariat',
+                'nom_service' => 'Service de développement social, coopération, mutuelle et partenariat',
                 'description' => 'Gestion des projets sociaux et partenariats'
             ],
             [
-                'nom_service' => 'Services des travaux, équipements et aménagement des espaces',
+                'nom_service' => 'Service des travaux, équipements et aménagement des espaces',
                 'description' => 'Suivi des chantiers et équipements'
             ],
             [
-                'nom_service' => 'Services de programmation, finances et budget',
+                'nom_service' => 'Service de programmation, finances et budget',
                 'description' => 'Élaboration et suivi budgétaire'
             ],
             [
-                'nom_service' => 'services des ressources humaines, affaires juridiques, patrimoine et contentieux',
+                'nom_service' => 'Service des ressources humaines, affaires juridiques, patrimoine et contentieux',
                 'description' => 'Gestion du personnel et affaires juridiques'
             ],
+             [
+                'nom_service' => 'Bureau d’Ordre',
+                'description' => 'Bureau d’Ordre',
+            ],
+
         ]);
     }
 }

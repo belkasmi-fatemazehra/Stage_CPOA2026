@@ -22,7 +22,7 @@ class User extends Authenticatable
     'email',
     'password',
     'role',
-    'service',
+    'service_id',
     'is_active',
     'nature_id'
     ];
@@ -81,6 +81,10 @@ class User extends Authenticatable
     public function isUser()
     {
     return $this->role === 'user';
+    }
+    public function service()
+    {
+    return $this->belongsTo(Service::class);
     }
 }
 

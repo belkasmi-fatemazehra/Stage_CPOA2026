@@ -12,7 +12,7 @@ return new class extends Migration
         $table->id();
 
         $table->string('numero')->unique();
-       $table->string('type');
+        $table->string('type');
         $table->string('objet');
         $table->text('description')->nullable();
         $table->date('date_courrier');

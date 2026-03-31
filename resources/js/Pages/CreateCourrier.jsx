@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import CreatableSelect from "react-select/creatable"
 import { router } from "@inertiajs/react"
+import Sidebar from "../Components/Sidebar"
 
 export default function CreateCourrier(){
 
@@ -14,7 +15,6 @@ const [type,setType] = useState("")
 const [date,setDate] = useState("")
 const [description,setDescription] = useState("")
 const [expediteur,setExpediteur] = useState("")
-const [destinataire,setDestinataire] = useState("")
 const [nombrePieces,setNombrePieces] = useState("")
 const [observations,setObservations] = useState("")
 const [natureId,setNatureId] = useState("")
@@ -59,7 +59,6 @@ setType(data.type)
 setDate(data.date_courrier)
 setDescription(data.description || "")
 setExpediteur(data.expediteur || "")
-setDestinataire(data.destinataire || "")
 setNombrePieces(data.nombre_pieces || "")
 setObservations(data.observations || "")
 setNatureId(data.nature_id)
@@ -128,7 +127,6 @@ formData.append("objet",objet)
 formData.append("date_courrier",date)
 formData.append("description",description)
 formData.append("expediteur",expediteur)
-formData.append("destinataire",destinataire)
 formData.append("nombre_pieces",nombrePieces)
 formData.append("observations",observations)
 formData.append("nature_id",natureId)
@@ -161,125 +159,141 @@ setLoading(false)
 
 return(
 
-<div className="min-h-screen bg-dark-50">
+<Sidebar>
 
-<div className="bg-blue-900 text-white flex items-center justify-between px-6 py-3">
+<div style={{ padding: "30px" }}>
 
-<div className="flex items-center gap-4">
+<div style={{
+    background: "white",
+    borderRadius: "12px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    overflow: "hidden"
+}}>
 
-<img
-src="/images/wilaya.png"
-className="h-12"
-/>
+<div style={{
+    background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)",
+    padding: "25px 30px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+}}>
+    <div>
+        <h1 style={{ margin: 0, fontSize: "24px", fontWeight: "600", color: "white" }}>
+            {editId ? "Modifier Courrier Arrivée" : "Nouveau Courrier Arrivée"}
+        </h1>
+        <p style={{ margin: "5px 0 0 0", fontSize: "14px", opacity: 0.8, color: "white" }}>
+            {editId ? "Mettre à jour les informations" : "Enregistrer un nouveau courrier"}
+        </p>
+    </div>
+    <button
+        onClick={()=>router.visit("/courriers")}
+        style={{
+            background: "rgba(255,255,255,0.2)",
+            color: "white",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            border: "1px solid rgba(255,255,255,0.3)",
+            fontWeight: "500",
+            cursor: "pointer"
+        }}
+    >
+        ← Retour à la liste
+    </button>
+</div>
+
+<div style={{ padding: "30px" }}>
+
+<form onSubmit={submitForm} style={{ display: "grid", gap: "25px" }}>
+
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
 
 <div>
-
-<h1 className="font-bold text-lg">
-Bureau d'Ordre
-</h1>
-
-<p className="text-sm">
-Conseil Provincial Oujda-Angad
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div className="flex">
-
-<div className="w-60 bg-white shadow-md min-h-screen p-4">
-
-<button
-onClick={()=>router.visit("/")}
-className="block w-full text-left p-3 rounded hover:bg-gray-200"
->
-Accueil
-</button>
-
-<button
-onClick={()=>router.visit("/courriers")}
-className="block w-full text-left p-3 rounded hover:bg-gray-200"
->
-Liste Courriers
-</button>
-
-</div>
-
-<div className="flex-1 p-8">
-
-<div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-8">
-
-<div className="flex justify-between items-center mb-6 border-b pb-4">
-
-<h1 className="text-2xl font-bold text-gray-700">
-{editId ? "Modifier Courrier Arrivée" : "Nouveau Courrier Arrivée"}
-</h1>
-
-</div>
-
-<form onSubmit={submitForm} className="space-y-5">
-
-<div className="grid grid-cols-2 gap-4">
-
-<div>
-<label className="text-sm font-medium">Année</label>
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Année</label>
 <input
 type="number"
 value={annee}
 onChange={(e)=>setAnnee(e.target.value)}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px"
+}}
 />
 </div>
 
 <div>
-<label className="text-sm font-medium">Numéro</label>
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Numéro</label>
 <input
 type="text"
 value={numero}
 onChange={(e)=>setNumero(e.target.value)}
-className="w-full border rounded-lg p-2 bg-gray-100"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px",
+    background: "#f8fafc"
+}}
 />
 </div>
 
 </div>
 
 <div>
-<label className="text-sm font-medium">
-Date d'arrivée *
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
+    Date d'arrivée *
 </label>
 <input
 type="date"
 value={date}
 max={new Date().toISOString().split("T")[0]}
 onChange={(e)=>setDate(e.target.value)}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px"
+}}
 />
 </div>
 
 <div>
-<label className="text-sm font-medium">
-Objet *
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
+    Objet *
 </label>
-<input
-type="text"
+<textarea
 value={objet}
 onChange={(e)=>setObjet(e.target.value)}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px",
+    minHeight: "80px"
+}}
 />
 </div>
 
 <div>
-<label className="text-sm font-medium">
-Type de courrier *
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
+    Type de courrier *
 </label>
 
 <select
 value={type}
 onChange={(e)=>setType(e.target.value)}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px"
+}}
 >
 
 <option value="">Choisir type</option>
@@ -292,14 +306,20 @@ className="w-full border rounded-lg p-2"
 </div>
 
 <div>
-<label className="text-sm font-medium">
-Nature *
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
+    Nature *
 </label>
 
 <select
 value={natureId}
 onChange={(e)=>setNatureId(e.target.value)}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px"
+}}
 >
 
 <option value="">Choisir nature</option>
@@ -314,62 +334,46 @@ className="w-full border rounded-lg p-2"
 
 </div>
 
-<div className="grid grid-cols-2 gap-4">
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
 
 <div>
-<label className="text-sm font-medium">Nombre de pièces</label>
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Nombre de pièces</label>
 <input
 type="number"
 value={nombrePieces}
 onChange={(e)=>setNombrePieces(e.target.value)}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px"
+}}
 />
 </div>
 
 <div>
-<label className="text-sm font-medium">Expéditeur</label>
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Expéditeur</label>
 <input
 type="text"
 value={expediteur}
 onChange={(e)=>setExpediteur(e.target.value)}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px"
+}}
 />
 </div>
 
 </div>
 
 <div>
-<label className="text-sm font-medium">Destinataire</label>
-<input
-type="text"
-value={destinataire}
-onChange={(e)=>setDestinataire(e.target.value)}
-className="w-full border rounded-lg p-2"
-/>
-</div>
 
-<div>
-<label className="text-sm font-medium">Description</label>
-<textarea
-value={description}
-onChange={(e)=>setDescription(e.target.value)}
-className="w-full border rounded-lg p-2"
-/>
-</div>
-
-<div>
-<label className="text-sm font-medium">Observations</label>
-<textarea
-value={observations}
-onChange={(e)=>setObservations(e.target.value)}
-className="w-full border rounded-lg p-2"
-/>
-</div>
-
-<div>
-
-<label className="text-sm font-medium">
-Service destinataire *
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
+    Service destinataire *
 </label>
 
 <CreatableSelect
@@ -383,15 +387,53 @@ isSearchable
 </div>
 
 <div>
-<label className="text-sm font-medium">
-Scan courrier (PDF)
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Description</label>
+<textarea
+value={description}
+onChange={(e)=>setDescription(e.target.value)}
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px",
+    minHeight: "80px"
+}}
+/>
+</div>
+
+<div>
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Observations</label>
+<textarea
+value={observations}
+onChange={(e)=>setObservations(e.target.value)}
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px",
+    minHeight: "80px"
+}}
+/>
+</div>
+
+<div>
+<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
+    Scan courrier (PDF)
 </label>
 
 <input
 type="file"
 accept="application/pdf"
 onChange={(e)=>setFichier(e.target.files[0])}
-className="w-full border rounded-lg p-2"
+style={{
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    fontSize: "14px"
+}}
 />
 
 </div>
@@ -399,7 +441,17 @@ className="w-full border rounded-lg p-2"
 <button
 type="submit"
 disabled={loading}
-className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg w-full text-lg"
+style={{
+    background: loading ? "#9ca3af" : "#22c55e",
+    color: "white",
+    padding: "15px 30px",
+    borderRadius: "8px",
+    border: "none",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: loading ? "not-allowed" : "pointer",
+    marginTop: "10px"
+}}
 >
 
 {loading ? "Enregistrement..." : editId ? "Modifier le courrier" : "Enregistrer le courrier"}
@@ -414,7 +466,7 @@ className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg w-ful
 
 </div>
 
-</div>
+</Sidebar>
 
 )
 

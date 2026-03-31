@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { router } from "@inertiajs/react";
+import Sidebar from "../Components/Sidebar";
 
 export default function CreateCourrierDepart() {
   const [numero, setNumero] = useState("");
@@ -22,7 +23,6 @@ export default function CreateCourrierDepart() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // استخراج id من query string: /courrier-departs/create?id=3
   const searchParams = new URLSearchParams(window.location.search);
   const id = searchParams.get("id");
   const isEdit = !!id;
@@ -30,13 +30,11 @@ export default function CreateCourrierDepart() {
   useEffect(() => {
     fetch("/api/natures")
       .then((res) => res.json())
-      .then((data) => setNatures(data))
-      .catch((err) => console.error("Erreur natures:", err));
+      .then((data) => setNatures(data));
 
     fetch("/api/courriers")
       .then((res) => res.json())
-      .then((data) => setCourriers(data))
-      .catch((err) => console.error("Erreur courriers:", err));
+      .then((data) => setCourriers(data));
   }, []);
 
   useEffect(() => {
@@ -45,8 +43,7 @@ export default function CreateCourrierDepart() {
         .then((res) => res.json())
         .then((data) => {
           setNumero(data.numero);
-        })
-        .catch((err) => console.error("Erreur next number:", err));
+        });
     }
   }, [annee, isEdit]);
 
@@ -148,230 +145,318 @@ export default function CreateCourrierDepart() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      <div className="w-64 bg-[#0f172a] text-white min-h-screen shadow-xl">
-        <div className="p-6 border-b border-slate-700 flex flex-col items-center">
-          <img
-            src="/images/wilaya (1).png"
-            alt="Logo Wilaya"
-            className="w-20 h-20 object-contain mb-3"
-          />
-          <h2 className="text-lg font-bold text-center leading-6">
-            Gestion Courrier
-          </h2>
-        </div>
+    <Sidebar>
+      <div style={{ padding: "30px" }}>
 
-        <div className="p-4 space-y-3">
-          <button
-            onClick={() => router.visit("/")}
-            className="w-full text-left bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded-lg transition"
-          >
-            Accueil
-          </button>
+        <div style={{
+            background: "white",
+            borderRadius: "12px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+            overflow: "hidden"
+        }}>
 
-          <button
-            onClick={() => router.visit("/courrier-departs")}
-            className="w-full text-left bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded-lg transition"
-          >
-            Liste courrier départ
-          </button>
+            <div style={{
+                background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+                padding: "25px 30px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+            }}>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: "24px", fontWeight: "600", color: "white" }}>
+                        {isEdit ? "Modifier Courrier Départ" : "Nouveau Courrier Départ"}
+                    </h1>
+                    <p style={{ margin: "5px 0 0 0", fontSize: "14px", opacity: 0.8, color: "white" }}>
+                        {isEdit ? "Mettre à jour les informations" : "Enregistrer un nouveau courrier"}
+                    </p>
+                </div>
+                <button
+                    onClick={() => router.visit("/courrier-departs")}
+                    style={{
+                        background: "rgba(255,255,255,0.2)",
+                        color: "white",
+                        padding: "10px 20px",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(255,255,255,0.3)",
+                        fontWeight: "500",
+                        cursor: "pointer"
+                    }}
+                >
+                    ← Retour à la liste
+                </button>
+            </div>
+
+            <div style={{ padding: "30px" }}>
+
+                <form onSubmit={submitForm} style={{ display: "grid", gap: "25px" }}>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                        <div>
+                            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Année</label>
+                            <input
+                                type="number"
+                                value={annee}
+                                onChange={(e) => setAnnee(e.target.value)}
+                                style={{
+                                    width: "100%",
+                                    padding: "12px",
+                                    border: "1px solid #e2e8f0",
+                                    borderRadius: "8px",
+                                    fontSize: "14px"
+                                }}
+                                disabled={isEdit}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Numéro</label>
+                            <input
+                                type="text"
+                                value={numero}
+                                onChange={(e) => setNumero(e.target.value)}
+                                style={{
+                                    width: "100%",
+                                    padding: "12px",
+                                    border: "1px solid #e2e8f0",
+                                    borderRadius: "8px",
+                                    fontSize: "14px",
+                                    background: "#f8fafc"
+                                }}
+                                disabled={isEdit}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Date de départ *</label>
+                        <input
+                            type="date"
+                            value={dateDepart}
+                            max={today}
+                            onChange={(e) => setDateDepart(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Objet *</label>
+                        <input
+                            type="text"
+                            value={objet}
+                            onChange={(e) => setObjet(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Type de courrier</label>
+                        <select
+                            value={type}
+                            onChange={(e) => setType(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        >
+                            <option value="">Choisir type</option>
+                            <option value="Facture">Facture</option>
+                            <option value="Note">Note</option>
+                            <option value="Réclamation">Réclamation</option>
+                            <option value="Officiel">Officiel</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Destinataire externe *</label>
+                        <input
+                            type="text"
+                            value={destinataire}
+                            onChange={(e) => setDestinataire(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Mode d'envoi *</label>
+                        <select
+                            value={modeEnvoi}
+                            onChange={(e) => setModeEnvoi(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        >
+                            <option value="">Choisir</option>
+                            <option value="Poste">Poste</option>
+                            <option value="Email">Email</option>
+                            <option value="Remise en main propre">Remise en main propre</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Nature *</label>
+                        <select
+                            value={natureId}
+                            onChange={(e) => setNatureId(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        >
+                            <option value="">Choisir nature</option>
+                            {natures.map((n) => (
+                                <option key={n.id} value={n.id}>
+                                    {n.nom}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Réponse à (courrier arrivé)</label>
+                        <select
+                            value={courrierArriveId}
+                            onChange={(e) => setCourrierArriveId(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        >
+                            <option value="">Pas de réponse</option>
+                            {courriers.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                    {c.numero} - {c.objet}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Nombre de pièces</label>
+                        <input
+                            type="number"
+                            value={nombrePieces}
+                            onChange={(e) => setNombrePieces(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Description</label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px",
+                                minHeight: "80px"
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Observations</label>
+                        <textarea
+                            value={observations}
+                            onChange={(e) => setObservations(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px",
+                                minHeight: "80px"
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Scan courrier (PDF)</label>
+                        <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={(e) => setFichier(e.target.files[0])}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px"
+                            }}
+                        />
+                        {existingFile && !fichier && (
+                            <p style={{ fontSize: "13px", color: "#22c55e", marginTop: "8px" }}>
+                                ✓ Fichier actuel déjà enregistré
+                            </p>
+                        )}
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                            background: loading ? "#9ca3af" : "#22c55e",
+                            color: "white",
+                            padding: "15px 30px",
+                            borderRadius: "8px",
+                            border: "none",
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            cursor: loading ? "not-allowed" : "pointer",
+                            marginTop: "10px"
+                        }}
+                    >
+                        {loading
+                            ? isEdit
+                                ? "Modification..."
+                                : "Enregistrement..."
+                            : isEdit
+                            ? "Modifier"
+                            : "Enregistrer"}
+                    </button>
+                </form>
+            </div>
         </div>
       </div>
-
-      <div className="flex-1">
-        <div className="bg-white shadow-md px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-700">
-            {isEdit ? "Modifier Courrier Départ" : "Nouveau Courrier Départ"}
-          </h1>
-
-          <button
-            type="button"
-            onClick={() => router.visit("/")}
-            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
-          >
-            Accueil
-          </button>
-        </div>
-
-        <div className="p-8">
-          <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-8">
-            <form onSubmit={submitForm} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label>Année</label>
-                  <input
-                    type="number"
-                    value={annee}
-                    onChange={(e) => setAnnee(e.target.value)}
-                    className="w-full border p-2 rounded"
-                    disabled={isEdit}
-                  />
-                </div>
-
-                <div>
-                  <label>Numéro</label>
-                  <input
-                    type="text"
-                    value={numero}
-                    onChange={(e) => setNumero(e.target.value)}
-                    className="w-full border p-2 rounded"
-                    disabled={isEdit}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label>Date de départ *</label>
-                <input
-                  type="date"
-                  value={dateDepart}
-                  max={today}
-                  onChange={(e) => setDateDepart(e.target.value)}
-                  className="w-full border p-2 rounded"
-                />
-              </div>
-
-              <div>
-                <label>Objet *</label>
-                <input
-                  type="text"
-                  value={objet}
-                  onChange={(e) => setObjet(e.target.value)}
-                  className="w-full border p-2 rounded"
-                />
-              </div>
-
-              <div>
-                <label>Type de courrier</label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-full border p-2 rounded"
-                >
-                  <option value="">Choisir type</option>
-                  <option value="Facture">Facture</option>
-                  <option value="Note">Note</option>
-                  <option value="Réclamation">Réclamation</option>
-                  <option value="Officiel">Officiel</option>
-                </select>
-              </div>
-
-              <div>
-                <label>Destinataire externe *</label>
-                <input
-                  type="text"
-                  value={destinataire}
-                  onChange={(e) => setDestinataire(e.target.value)}
-                  className="w-full border p-2 rounded"
-                />
-              </div>
-
-              <div>
-                <label>Mode d'envoi *</label>
-                <select
-                  value={modeEnvoi}
-                  onChange={(e) => setModeEnvoi(e.target.value)}
-                  className="w-full border p-2 rounded"
-                >
-                  <option value="">Choisir</option>
-                  <option value="Poste">Poste</option>
-                  <option value="Email">Email</option>
-                  <option value="Remise en main propre">Remise en main propre</option>
-                </select>
-              </div>
-
-              <div>
-                <label>Nature *</label>
-                <select
-                  value={natureId}
-                  onChange={(e) => setNatureId(e.target.value)}
-                  className="w-full border p-2 rounded"
-                >
-                  <option value="">Choisir nature</option>
-                  {natures.map((n) => (
-                    <option key={n.id} value={n.id}>
-                      {n.nom}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label>Réponse à (courrier arrivé)</label>
-                <select
-                  value={courrierArriveId}
-                  onChange={(e) => setCourrierArriveId(e.target.value)}
-                  className="w-full border p-2 rounded"
-                >
-                  <option value="">Pas de réponse</option>
-                  {courriers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.numero} - {c.objet}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label>Nombre de pièces</label>
-                <input
-                  type="number"
-                  value={nombrePieces}
-                  onChange={(e) => setNombrePieces(e.target.value)}
-                  className="w-full border p-2 rounded"
-                />
-              </div>
-
-              <div>
-                <label>Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full border p-2 rounded"
-                />
-              </div>
-
-              <div>
-                <label>Observations</label>
-                <textarea
-                  value={observations}
-                  onChange={(e) => setObservations(e.target.value)}
-                  className="w-full border p-2 rounded"
-                />
-              </div>
-
-              <div>
-                <label>Scan courrier (PDF)</label>
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(e) => setFichier(e.target.files[0])}
-                  className="w-full border p-2 rounded"
-                />
-                {existingFile && !fichier && (
-                  <p className="text-sm text-green-600 mt-2">
-                    Fichier actuel déjà enregistré
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-green-600 text-white px-6 py-3 rounded w-full hover:bg-green-700"
-              >
-                {loading
-                  ? isEdit
-                    ? "Modification..."
-                    : "Enregistrement..."
-                  : isEdit
-                  ? "Modifier"
-                  : "Enregistrer"}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    </Sidebar>
   );
 }

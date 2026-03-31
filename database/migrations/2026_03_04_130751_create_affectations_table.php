@@ -26,7 +26,7 @@ return new class extends Migration
         $table->timestamps();
 
         // courrier يتأثر مرة وحدة فقط
-        $table->unique('courrier_id');
+        // $table->unique('courrier_id');
     });
 }
 

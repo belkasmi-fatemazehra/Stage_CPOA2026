@@ -11,6 +11,10 @@ use Inertia\Inertia;
 | Page d'accueil
 |--------------------------------------------------------------------------
 */
+//affictation
+Route::get('/affectations', function () {
+    return Inertia::render('Affectations');
+})->middleware('auth');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -81,11 +85,12 @@ Route::middleware(['auth'])->group(function () {
 // user :page gestion utilisateur
 Route::get('/users', function () {
     return Inertia::render('Users');
-})->middleware(['auth']);
-// user
+});
+
+// user API
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users-api', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']);
@@ -93,8 +98,18 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-Route::get('/users', function () {
-    return Inertia::render('Users');
-})->middleware('auth');
-
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Affectations
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/affectations', function () {
+    return Inertia::render('Affectations/Index');
+})->name('affectations.index');
+
+Route::get('/reponses', function () {
+    return Inertia::render('Affectations/Responses');
+})->name('reponses.index');
