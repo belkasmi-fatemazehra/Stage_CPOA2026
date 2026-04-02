@@ -77,7 +77,8 @@ export default function Sidebar({ children }) {
                             marginBottom: "15px",
                             paddingLeft: "10px"
                         }}>Administration</p>
-                        <NavButton href="/users" icon="⚙️" text="Gestion Utilisateurs" active />
+                        <NavButton href="/users" icon="⚙️" text="Gestion Utilisateurs" />
+                        <NavButton href="/reponses" icon="💬" text="Réponses Services" />
                     </div>
                 )}
 
@@ -91,7 +92,7 @@ export default function Sidebar({ children }) {
                             marginBottom: "15px",
                             paddingLeft: "10px"
                         }}>Mon Service</p>
-                        <NavButton href="/affectations" icon="📌" text="Mes Affectations" active />
+                        <NavButton href="/affectations" icon="📌" text="Mes Affectations" />
                     </div>
                 )}
 

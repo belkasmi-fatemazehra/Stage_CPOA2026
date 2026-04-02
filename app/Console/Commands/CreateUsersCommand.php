@@ -37,13 +37,13 @@ class CreateUsersCommand extends Command
             ['name' => 'Agent Bureau d\'Ordre', 'email' => 'bureau.ordre@bureau.dz'],
         ];
 
-        foreach ($services as $index => $service) {
+        foreach ($services->take(5) as $index => $service) {
             User::create([
                 'name' => $serviceUsers[$index]['name'],
                 'email' => $serviceUsers[$index]['email'],
                 'password' => Hash::make('service123'),
                 'role' => 'user',
-                'service' => $service->nom_service,
+                'service_id' => $service->id,
                 'is_active' => true,
             ]);
         }

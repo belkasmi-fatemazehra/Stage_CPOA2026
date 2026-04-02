@@ -58,11 +58,14 @@ export default function ListCourrierDeparts() {
 
   const voirCourrier = (c) => {
     if (c.fichier) {
-      window.open(`/storage/${c.fichier}`, "_blank");
+      window.open('/courriers/voir?path=' + encodeURIComponent(c.fichier), "_blank");
     }
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
     fetch(`/api/courrier-departs/${c.id}/valider`, {
       method: "PUT",
+      headers: { "X-CSRF-TOKEN": csrfToken },
+      credentials: "include"
     }).then(() => loadCourriers());
   };
 
@@ -87,8 +90,11 @@ export default function ListCourrierDeparts() {
     const formData = new FormData();
     formData.append("file", importFile);
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
     fetch("/api/courrier-departs/import-excel", {
       method: "POST",
+      headers: { "X-CSRF-TOKEN": csrfToken },
+      credentials: "include",
       body: formData,
     })
       .then((res) => res.json())
@@ -115,11 +121,14 @@ export default function ListCourrierDeparts() {
   };
 
   const submitAffectation = () => {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+    
     fetch("/api/affectations", {
       method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        "X-CSRF-TOKEN": csrfToken
       },
       body: JSON.stringify({
         courrier_id: selectedCourrier.id,

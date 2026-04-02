@@ -109,3 +109,16 @@ Route::get('/affectations', function () {
 Route::get('/reponses', function () {
     return Inertia::render('Affectations/Responses');
 })->middleware('auth')->name('reponses.index');
+
+Route::get('/courriers/voir', function (\Illuminate\Http\Request $request) {
+    $path = $request->query('path');
+    if (! $path) {
+        abort(404);
+    }
+    $fullPath = storage_path('app/public/'.$path);
+    if (! file_exists($fullPath)) {
+        abort(404);
+    }
+
+    return response()->file($fullPath);
+})->middleware('auth');

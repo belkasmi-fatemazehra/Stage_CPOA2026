@@ -11,22 +11,20 @@ const editId = params.get("id")
 const [numero,setNumero] = useState("")
 const [annee,setAnnee] = useState(new Date().getFullYear())
 const [objet,setObjet] = useState("")
-const [type,setType] = useState("")
+const [type,setType] = useState("Officiel")
 const [date,setDate] = useState("")
 const [description,setDescription] = useState("")
 const [expediteur,setExpediteur] = useState("")
 const [nombrePieces,setNombrePieces] = useState("")
 const [observations,setObservations] = useState("")
-const [natureId,setNatureId] = useState("")
+const [natureId,setNatureId] = useState("1")
 const [natures,setNatures] = useState([])
-const [services,setServices] = useState([])
-const [serviceId,setServiceId] = useState("")
 const [fichier,setFichier] = useState(null)
 const [loading,setLoading] = useState(false)
 
 useEffect(()=>{
 
-fetch("/api/courriers/next-number?annee="+annee)
+fetch("/api/courriers/next-number?annee="+annee, { credentials: "include" })
 .then(res=>res.json())
 .then(data=>{
 if(!editId){
@@ -34,13 +32,7 @@ setNumero(data.numero)
 }
 })
 
-fetch("/api/services")
-.then(res=>res.json())
-.then(data=>{
-setServices(data)
-})
-
-fetch("/api/natures")
+fetch("/api/natures", { credentials: "include" })
 .then(res=>res.json())
 .then(data=>{
 setNatures(data)
@@ -48,7 +40,7 @@ setNatures(data)
 
 if(editId){
 
-fetch("/api/courriers/"+editId)
+fetch("/api/courriers/"+editId, { credentials: "include" })
 .then(res=>res.json())
 .then(data=>{
 
@@ -62,7 +54,6 @@ setExpediteur(data.expediteur || "")
 setNombrePieces(data.nombre_pieces || "")
 setObservations(data.observations || "")
 setNatureId(data.nature_id)
-setServiceId(data.service_id)
 
 })
 
@@ -70,50 +61,20 @@ setServiceId(data.service_id)
 
 },[annee])
 
-const serviceOptions = services.map(s=>({
-value:s.id,
-label:s.nom_service
-}))
-
-const handleServiceChange = (selected)=>{
-
-if(!selected){
-setServiceId("")
-return
-}
-
-if(selected.__isNew__){
-
-fetch("/api/services",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-nom_service:selected.label
-})
-})
-.then(res=>res.json())
-.then(data=>{
-setServices([...services,data.service])
-setServiceId(data.service.id)
-})
-
-}else{
-
-setServiceId(selected.value)
-
-}
-
-}
-
 const submitForm = (e)=>{
 
 e.preventDefault()
 
-if(!objet || !date || !serviceId || !natureId || !type){
-alert("Veuillez remplir les champs obligatoires")
-return
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content")
+
+if(!objet || !date || !natureId || !type){
+    alert("Veuillez remplir les champs obligatoires")
+    return
+}
+
+if (!natureId || isNaN(parseInt(natureId))) {
+    alert("Veuillez sélectionner une nature valide")
+    return
 }
 
 setLoading(true)
@@ -130,28 +91,59 @@ formData.append("expediteur",expediteur)
 formData.append("nombre_pieces",nombrePieces)
 formData.append("observations",observations)
 formData.append("nature_id",natureId)
-formData.append("service_id",serviceId)
 
 if(fichier){
-formData.append("fichier",fichier)
+    formData.append("fichier",fichier)
 }
 
-const url = editId ? "/api/courriers/"+editId : "/api/courriers"
+    const url = editId ? "/api/courriers/"+editId : "/api/courriers"
 
-fetch(url,{
-method:"POST",
-body:formData
-})
-.then(res=>res.json())
-.then(()=>{
-
-alert(editId ? "Courrier modifié avec succès" : "Courrier ajouté avec succès")
-
-router.visit("/courriers")
-
-})
-.catch(()=>{
-alert("Erreur lors de l'opération")
+    fetch(url,{
+        method:"POST",
+        headers: {
+            "Accept": "application/json",
+            "X-CSRF-TOKEN": csrfToken,
+        },
+        credentials: "include",
+        body:formData
+    })
+    .then(async res => {
+        const contentType = res.headers.get("content-type")
+        
+        if (!res.ok) {
+            // Check if response is JSON before parsing
+            if (contentType && contentType.includes("application/json")) {
+                const err = await res.json()
+                let errorMsg = 'Erreur: ';
+                if (err.errors) {
+                    Object.keys(err.errors).forEach(key => {
+                        errorMsg += '\n- ' + key + ': ' + err.errors[key].join(', ');
+                    });
+                } else {
+                    errorMsg += err.message || err.error || 'Erreur serveur';
+                }
+                throw new Error(errorMsg);
+            }
+            // HTML response - likely auth redirect or server error
+            throw new Error(`Erreur ${res.status}: ${res.statusText}. Veuillez vous reconnecter.`);
+        }
+        
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Réponse invalide du serveur");
+        }
+        
+        return res.json();
+    })
+    .then(data => {
+        if (data && data.success) {
+            alert(editId ? "Courrier modifié avec succès" : "Courrier ajouté avec succès")
+            window.location.href = "/courriers"
+        } else if (data && data.message) {
+            throw new Error(data.message);
+        }
+    })
+.catch((err)=>{
+alert(err.message)
 setLoading(false)
 })
 
@@ -186,7 +178,7 @@ return(
         </p>
     </div>
     <button
-        onClick={()=>router.visit("/courriers")}
+        onClick={() => window.location.href = "/courriers"}
         style={{
             background: "rgba(255,255,255,0.2)",
             color: "white",
@@ -296,7 +288,6 @@ style={{
 }}
 >
 
-<option value="">Choisir type</option>
 <option value="Facture">Facture</option>
 <option value="Note">Note</option>
 <option value="Réclamation">Réclamation</option>
@@ -351,7 +342,7 @@ style={{
 }}
 />
 </div>
-
+<br />
 <div>
 <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Expéditeur</label>
 <input
@@ -367,22 +358,6 @@ style={{
 }}
 />
 </div>
-
-</div>
-
-<div>
-
-<label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
-    Service destinataire *
-</label>
-
-<CreatableSelect
-options={serviceOptions}
-onChange={handleServiceChange}
-placeholder="Rechercher ou ajouter service..."
-isClearable
-isSearchable
-/>
 
 </div>
 

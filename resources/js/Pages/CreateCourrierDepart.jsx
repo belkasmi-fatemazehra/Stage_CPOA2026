@@ -6,14 +6,14 @@ export default function CreateCourrierDepart() {
   const [numero, setNumero] = useState("");
   const [annee, setAnnee] = useState(new Date().getFullYear());
   const [objet, setObjet] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState("Officiel");
   const [dateDepart, setDateDepart] = useState("");
   const [destinataire, setDestinataire] = useState("");
   const [modeEnvoi, setModeEnvoi] = useState("");
   const [description, setDescription] = useState("");
   const [nombrePieces, setNombrePieces] = useState("");
   const [observations, setObservations] = useState("");
-  const [natureId, setNatureId] = useState("");
+  const [natureId, setNatureId] = useState("1");
   const [natures, setNatures] = useState([]);
   const [courrierArriveId, setCourrierArriveId] = useState("");
   const [courriers, setCourriers] = useState([]);
@@ -114,8 +114,14 @@ export default function CreateCourrierDepart() {
       formData.append("_method", "PUT");
     }
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+
     fetch(url, {
       method: "POST",
+      headers: {
+        "X-CSRF-TOKEN": csrfToken
+      },
+      credentials: "include",
       body: formData,
     })
       .then(async (res) => {
@@ -246,16 +252,17 @@ export default function CreateCourrierDepart() {
 
                     <div>
                         <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Objet *</label>
-                        <input
-                            type="text"
+                        <textarea
                             value={objet}
                             onChange={(e) => setObjet(e.target.value)}
+                            rows={3}
                             style={{
                                 width: "100%",
                                 padding: "12px",
                                 border: "1px solid #e2e8f0",
                                 borderRadius: "8px",
-                                fontSize: "14px"
+                                fontSize: "14px",
+                                resize: "vertical"
                             }}
                         />
                     </div>
@@ -273,7 +280,6 @@ export default function CreateCourrierDepart() {
                                 fontSize: "14px"
                             }}
                         >
-                            <option value="">Choisir type</option>
                             <option value="Facture">Facture</option>
                             <option value="Note">Note</option>
                             <option value="Réclamation">Réclamation</option>
@@ -330,7 +336,6 @@ export default function CreateCourrierDepart() {
                                 fontSize: "14px"
                             }}
                         >
-                            <option value="">Choisir nature</option>
                             {natures.map((n) => (
                                 <option key={n.id} value={n.id}>
                                     {n.nom}
